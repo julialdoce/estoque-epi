@@ -4,66 +4,230 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Controle de EPIs</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <!-- Modal de Login -->
-    <div id="loginModal" class="modal">
+    <div id="loginModal" class="modal active">
         <div class="modal-content">
             <h2>🔒 Acesso ao Sistema</h2>
             <form id="loginForm">
                 <div class="form-group">
                     <label for="username">Usuário:</label>
-                    <input type="text" id="username" required placeholder="Digite seu usuário">
+                    <input type="text" id="username" required placeholder="admin ou operador">
                 </div>
                 <div class="form-group">
                     <label for="password">Senha:</label>
-                    <input type="password" id="password" required placeholder="Digite sua senha">
+                    <input type="password" id="password" required placeholder="senha123">
                 </div>
                 <button type="submit" class="btn">Entrar</button>
             </form>
+            <div class="demo-credentials">
+                <p><strong>Demo:</strong></p>
+                <p>Admin: admin / admin123</p>
+                <p>Operador: operador / operador123</p>
+            </div>
         </div>
     </div>
 
-    <div class="container" id="appContainer" style="display: none;">
+    <div class="container" id="appContainer">
         <div class="header">
             <h1>🛡️ Sistema de Controle de EPIs</h1>
             <div class="nav-tabs">
-                <button class="nav-tab active" onclick="showSection('dashboard')">Dashboard</button>
-                <button class="nav-tab" id="estoqueTab" onclick="showSection('estoque')">Estoque</button>
-                <button class="nav-tab" onclick="showSection('retirada')">Retirada</button>
-                <button class="nav-tab" onclick="showSection('historico')">Histórico</button>
+                <button class="nav-tab active" data-section="dashboard">Dashboard</button>
+                <button class="nav-tab" data-section="estoque" id="estoqueTab">Estoque</button>
+                <button class="nav-tab" data-section="retirada">Retirada</button>
+                <button class="nav-tab" data-section="historico">Histórico</button>
                 <button class="nav-tab btn-danger" onclick="logout()">Sair</button>
             </div>
-            <div id="userInfo" style="margin-top: 10px; color: white;"></div>
+            <div id="userInfo"></div>
         </div>
 
         <!-- Dashboard Section -->
         <div id="dashboard" class="content-section active">
-            <!-- Conteúdo do Dashboard -->
+            <div class="dashboard-grid">
+                <div class="stats-card">
+                    <h3>📊 Total de EPIs</h3>
+                    <div class="stats-number" id="totalEpis">0</div>
+                    <p>Itens cadastrados no sistema</p>
+                </div>
+                <div class="stats-card">
+                    <h3>📦 Total em Estoque</h3>
+                    <div class="stats-number" id="totalEstoque">0</div>
+                    <p>Unidades disponíveis</p>
+                </div>
+                <div class="stats-card">
+                    <h3>🔴 Estoque Baixo</h3>
+                    <div class="stats-number" id="estoqueBaixo">0</div>
+                    <p>Itens com menos de 10 unidades</p>
+                </div>
+                <div class="stats-card">
+                    <h3>📋 Retiradas Hoje</h3>
+                    <div class="stats-number" id="retiradasDia">0</div>
+                    <p>Movimentações do dia</p>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <h3>📈 EPIs com Estoque Baixo</h3>
+                <div class="responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>EPI</th>
+                                <th>Tamanho</th>
+                                <th>Quantidade</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="estoqueBaixoTable">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #666;">Nenhum item com estoque baixo</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Estoque Section -->
         <div id="estoque" class="content-section">
-            <!-- Conteúdo do Estoque -->
+            <div class="stats-card">
+                <h3>➕ Adicionar Novo EPI</h3>
+                <form id="epiForm">
+                    <div class="form-group">
+                        <label for="epiNome">Nome do EPI:</label>
+                        <input type="text" id="epiNome" required placeholder="Ex: Luva Nitrílica">
+                    </div>
+                    <div class="form-group">
+                        <label for="epiTamanho">Tamanho:</label>
+                        <select id="epiTamanho" required>
+                            <option value="">Selecione o tamanho</option>
+                            <option value="PP">PP</option>
+                            <option value="P">P</option>
+                            <option value="M">M</option>
+                            <option value="G">G</option>
+                            <option value="GG">GG</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
+                            <option value="Único">Único</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="epiQuantidade">Quantidade:</label>
+                        <input type="number" id="epiQuantidade" required min="0" placeholder="0">
+                    </div>
+                    <button type="submit" class="btn">Adicionar ao Estoque</button>
+                </form>
+            </div>
+
+            <div class="stats-card">
+                <h3>📦 Estoque Atual</h3>
+                <div id="estoqueList" class="epi-list">
+                    <p style="text-align: center; color: #666;">Nenhum EPI cadastrado</p>
+                </div>
+            </div>
         </div>
 
         <!-- Retirada Section -->
         <div id="retirada" class="content-section">
-            <!-- Conteúdo de Retirada -->
+            <div class="stats-card">
+                <h3>🛡️ Selecione o EPI para Retirada</h3>
+                <div class="epi-carousel">
+                    <div class="carousel-container" id="carouselContainer">
+                        <div class="carousel-slide">
+                            <div class="epi-image">🛡️</div>
+                            <h3>Nenhum EPI disponível</h3>
+                            <p>Adicione EPIs ao estoque primeiro</p>
+                        </div>
+                    </div>
+                    <button class="carousel-controls carousel-prev" onclick="prevSlide()">❮</button>
+                    <button class="carousel-controls carousel-next" onclick="nextSlide()">❯</button>
+                </div>
+            </div>
         </div>
 
         <!-- Histórico Section -->
         <div id="historico" class="content-section">
-            <!-- Conteúdo do Histórico -->
+            <div class="stats-card">
+                <h3>📋 Histórico de Retiradas</h3>
+                <div class="responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Nome</th>
+                                <th>EPI</th>
+                                <th>Tamanho</th>
+                                <th>Quantidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historicoTable">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #666;">Nenhuma retirada registrada</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Modal de Retirada -->
     <div id="retiradaModal" class="modal">
-        <!-- Conteúdo do Modal de Retirada -->
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>📋 Formulário de Retirada</h2>
+            <form id="retiradaForm">
+                <input type="hidden" id="epiSelecionado">
+                <div class="form-group">
+                    <label for="nomeCompleto">Nome Completo:</label>
+                    <input type="text" id="nomeCompleto" required placeholder="Digite seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label for="dataRetirada">Data:</label>
+                    <input type="date" id="dataRetirada" required>
+                </div>
+                <div class="form-group">
+                    <label for="horaRetirada">Hora:</label>
+                    <input type="time" id="horaRetirada" required>
+                </div>
+                <div class="form-group">
+                    <label for="tamanhoRetirada">Tamanho:</label>
+                    <select id="tamanhoRetirada" required>
+                        <option value="">Selecione o tamanho</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantidadeRetirada">Quantidade:</label>
+                    <input type="number" id="quantidadeRetirada" required min="1" placeholder="1">
+                </div>
+                <div class="form-group">
+                    <label for="assinatura">Assinatura:</label>
+                    <canvas class="signature-pad" id="signaturePad" width="400" height="150"></canvas>
+                    <br><br>
+                    <button type="button" class="btn btn-danger" onclick="clearSignature()">Limpar Assinatura</button>
+                </div>
+                <br>
+                <button type="submit" class="btn">Confirmar Retirada</button>
+            </form>
+        </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Modal de Detalhes -->
+    <div id="detalhesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDetailsModal()">&times;</span>
+            <div id="detalhesContent"></div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
 </body>
 </html>
